@@ -1,0 +1,1 @@
+[{"id":"dcad1c28.2d929","type":"function","z":"2facf64b.1ac5ea","name":"parameters","func":"msg.headers = {};\nmsg.headers[\"Accept\"] = \"application/ld+json\";\n\nmsg.es = \"http://elasticsearch:9200\";\n\nreturn msg;","outputs":1,"noerr":0,"x":339.99999999999994,"y":458.57142857142856,"wires":[["e94a948c.57c428"]]}]
