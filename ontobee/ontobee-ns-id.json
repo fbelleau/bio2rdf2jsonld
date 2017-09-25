@@ -1,0 +1,401 @@
+[
+    {
+        "id": "a9724e97.fa148",
+        "type": "tab",
+        "label": "Ontobee go-id",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d0b27c38.ff969",
+        "type": "inject",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 277.1428527832031,
+        "y": 182.85714776175362,
+        "wires": [
+            [
+                "2841507f.cf21e"
+            ]
+        ]
+    },
+    {
+        "id": "2841507f.cf21e",
+        "type": "template",
+        "z": "a9724e97.fa148",
+        "name": "SELECT count(distinct(?s)) GO",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT count(distinct(?s)) as ?count\nWHERE { GRAPH <http://purl.obolibrary.org/obo/merged/GO> \n  { ?s rdf:type owl:Class } \n}",
+        "output": "str",
+        "x": 552.1428527832031,
+        "y": 183.85714776175362,
+        "wires": [
+            [
+                "67436028.b2172"
+            ]
+        ]
+    },
+    {
+        "id": "67436028.b2172",
+        "type": "http request",
+        "z": "a9724e97.fa148",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 579.1428680419922,
+        "y": 265.2857137407575,
+        "wires": [
+            [
+                "818dedf8.5fbff"
+            ]
+        ]
+    },
+    {
+        "id": "f7863183.37742",
+        "type": "debug",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1172.428565979004,
+        "y": 255.42856461661202,
+        "wires": []
+    },
+    {
+        "id": "818dedf8.5fbff",
+        "type": "function",
+        "z": "a9724e97.fa148",
+        "name": "msg.payload.results.bindings[0].count.value;",
+        "func": "msg.payload = msg.payload.results.bindings[0].count.value;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 902.8571166992188,
+        "y": 189.99999911444527,
+        "wires": [
+            [
+                "f7863183.37742"
+            ]
+        ]
+    },
+    {
+        "id": "94fb2413.7d13e8",
+        "type": "inject",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 204.28570556640625,
+        "y": 344.28571660178045,
+        "wires": [
+            [
+                "dd1694e9.f86638"
+            ]
+        ]
+    },
+    {
+        "id": "34477e4c.aa76c2",
+        "type": "template",
+        "z": "a9724e97.fa148",
+        "name": "sparql NS list ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?subject ?type\nWHERE { GRAPH <{{{graph}}}> { \n    ?subject rdf:type ?type .\n    FILTER(?type = owl:Class) .\n    } \n}\nLIMIT {{limit}} OFFSET {{offset}}",
+        "output": "str",
+        "x": 282.1429672241211,
+        "y": 632.428582736424,
+        "wires": [
+            [
+                "24bf850d.4ba0fa"
+            ]
+        ]
+    },
+    {
+        "id": "24bf850d.4ba0fa",
+        "type": "http request",
+        "z": "a9724e97.fa148",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 596.2857818603516,
+        "y": 632.4285169328962,
+        "wires": [
+            [
+                "63b2650f.fd5dec"
+            ]
+        ]
+    },
+    {
+        "id": "549f774.153a188",
+        "type": "debug",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1202.4286804199219,
+        "y": 562.5714193071638,
+        "wires": []
+    },
+    {
+        "id": "63b2650f.fd5dec",
+        "type": "splitter",
+        "z": "a9724e97.fa148",
+        "name": "payload.results.bindings",
+        "property": "payload.results.bindings",
+        "x": 965.7143249511719,
+        "y": 630.0000005449567,
+        "wires": [
+            [
+                "549f774.153a188",
+                "a4f65db9.7015d"
+            ]
+        ]
+    },
+    {
+        "id": "8f43da14.55bc58",
+        "type": "repeat",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "repetitions": "",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 697.1428985595703,
+        "y": 339.99998433249334,
+        "wires": [
+            [
+                "e5e1a582.1226e8"
+            ]
+        ]
+    },
+    {
+        "id": "b684c498.7f0688",
+        "type": "delay",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "9",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 808.5713729858398,
+        "y": 452.8572221483503,
+        "wires": [
+            [
+                "8f43da14.55bc58"
+            ]
+        ]
+    },
+    {
+        "id": "e5e1a582.1226e8",
+        "type": "function",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "func": "msg.offset = (msg._loopController.loops - 1 ) * msg.limit;\n\nreturn msg; \n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 575.7142791748047,
+        "y": 434.28582245962957,
+        "wires": [
+            [
+                "b684c498.7f0688",
+                "34477e4c.aa76c2",
+                "8451e367.4eb48"
+            ]
+        ]
+    },
+    {
+        "id": "dd1694e9.f86638",
+        "type": "function",
+        "z": "a9724e97.fa148",
+        "name": "parameters",
+        "func": "msg.es = \"localhost:9200\";\n\nmsg.size = 61115;\nmsg.namespace = \"GO\";\nmsg.index = \"go-id\";\nmsg.replace = \"http://purl.obolibrary.org/obo/GO_\";\n\n//msg.size = 126725;\n//msg.namespace = \"CHEBI\";\n//msg.index = \"chebi-id\"; \n//msg.replace = \"http://purl.obolibrary.org/obo/CHEBI_\";\n\n\nmsg.limit = 100;\nmsg.offset = 0;\nmsg.repetitions = msg.size / msg.limit;\n\nmsg.graph = \"http://purl.obolibrary.org/obo/merged/CHEBI\";\nmsg.graph = \"http://purl.obolibrary.org/obo/merged/GO\";\nmsg.type = \"chebi-id\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 427.14284842354914,
+        "y": 341.42857415335516,
+        "wires": [
+            [
+                "8f43da14.55bc58"
+            ]
+        ]
+    },
+    {
+        "id": "8451e367.4eb48",
+        "type": "debug",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "offset",
+        "x": 817.1427993774414,
+        "y": 518.5714402879987,
+        "wires": []
+    },
+    {
+        "id": "81205e2f.e8045",
+        "type": "comment",
+        "z": "a9724e97.fa148",
+        "name": "Ontobee",
+        "info": "http://sparql.hegroup.org/sparql/\n\nhttp://www.ontobee.org/\n\nhttp://ceur-ws.org/Vol-833/paper48.pdf",
+        "x": 287.14284842354914,
+        "y": 84.28571701049805,
+        "wires": []
+    },
+    {
+        "id": "2a3d7ec.93aa682",
+        "type": "inject",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 267.1428527832031,
+        "y": 137.1428609575544,
+        "wires": [
+            [
+                "7efffbf9.8f0f94"
+            ]
+        ]
+    },
+    {
+        "id": "7efffbf9.8f0f94",
+        "type": "template",
+        "z": "a9724e97.fa148",
+        "name": "SELECT count(distinct(?s)) CHEBI",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT count(distinct(?s)) as ?count\nWHERE { GRAPH <http://purl.obolibrary.org/obo/merged/CHEBI> \n  { ?s rdf:type owl:Class } \n}",
+        "output": "str",
+        "x": 552.1428527832031,
+        "y": 138.1428609575544,
+        "wires": [
+            [
+                "67436028.b2172"
+            ]
+        ]
+    },
+    {
+        "id": "a1c39bc3.de53d8",
+        "type": "http request",
+        "z": "a9724e97.fa148",
+        "name": "PUT http://{{es}}/{{index}}/id/{{id}}",
+        "method": "PUT",
+        "ret": "obj",
+        "url": "http://{{es}}/{{index}}/id/{{id}}",
+        "tls": "",
+        "x": 849.7141494750977,
+        "y": 858.571501323155,
+        "wires": [
+            [
+                "507b10af.be08e"
+            ]
+        ]
+    },
+    {
+        "id": "84542cc8.0c087",
+        "type": "debug",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1133.5713119506836,
+        "y": 767.1429267610822,
+        "wires": []
+    },
+    {
+        "id": "eca26def.c927b",
+        "type": "timestamp",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "x": 472.9998474121094,
+        "y": 759.2858072008405,
+        "wires": [
+            [
+                "b2a6d98e.fd0eb8"
+            ]
+        ]
+    },
+    {
+        "id": "b2a6d98e.fd0eb8",
+        "type": "function",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "func": "results = msg.payload;\n\nmsg.payload = {};\nmsg.payload.timestamp = msg.timestamp;\nmsg.payload.offset = msg.offset;\nmsg.payload.job = msg.job;\n\nmsg.id = results.subject.value.replace(msg.replace,\"\");\nmsg.payload.id = msg.id;\n\nmsg.payload.subject = results.subject.value;\nmsg.payload.type = results.type.value;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 649.8569946289062,
+        "y": 759.2857824053083,
+        "wires": [
+            [
+                "84542cc8.0c087",
+                "a1c39bc3.de53d8"
+            ]
+        ]
+    },
+    {
+        "id": "a4f65db9.7015d",
+        "type": "delay",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "30",
+        "timeoutUnits": "seconds",
+        "rate": "20",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 277.8570785522461,
+        "y": 759.8571677889142,
+        "wires": [
+            [
+                "eca26def.c927b"
+            ]
+        ]
+    },
+    {
+        "id": "507b10af.be08e",
+        "type": "debug",
+        "z": "a9724e97.fa148",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1129.5712051391602,
+        "y": 859.0000758852277,
+        "wires": []
+    }
+]
