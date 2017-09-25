@@ -1,0 +1,363 @@
+[
+    {
+        "id": "18fd2061.a658e",
+        "type": "tab",
+        "label": "Ontobee doid-id",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "fd55097c.787a98",
+        "type": "inject",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 142.85715103149414,
+        "y": 110.00000667572021,
+        "wires": [
+            [
+                "6172bddc.f53474"
+            ]
+        ]
+    },
+    {
+        "id": "6172bddc.f53474",
+        "type": "template",
+        "z": "18fd2061.a658e",
+        "name": "SELECT count(*) as ?count",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "SELECT count(*) as ?count\nWHERE { \n  GRAPH <http://purl.obolibrary.org/obo/merged/DOID> { \n    ?subject rdf:type ?type . \n    ?subject <http://www.geneontology.org/formats/oboInOwl%23id> ?id .\n    FILTER(REGEX(?id, \"DOID\")) .\n  } \n}",
+        "output": "str",
+        "x": 372.1427917480469,
+        "y": 112.42857933044434,
+        "wires": [
+            [
+                "56b77217.e1519c"
+            ]
+        ]
+    },
+    {
+        "id": "56b77217.e1519c",
+        "type": "http request",
+        "z": "18fd2061.a658e",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 704.8572006225586,
+        "y": 112.42857551574707,
+        "wires": [
+            [
+                "f967622.52ae9a"
+            ]
+        ]
+    },
+    {
+        "id": "77934b06.279084",
+        "type": "debug",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 763.8571166992188,
+        "y": 204.00000381469727,
+        "wires": []
+    },
+    {
+        "id": "f967622.52ae9a",
+        "type": "function",
+        "z": "18fd2061.a658e",
+        "name": "msg.payload.results.bindings[0].count.value;",
+        "func": "msg.payload = msg.payload.results.bindings[0].count.value;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 435.7142791748047,
+        "y": 199.99998950958252,
+        "wires": [
+            [
+                "77934b06.279084"
+            ]
+        ]
+    },
+    {
+        "id": "3802eec3.19cbc2",
+        "type": "inject",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 181.42857360839844,
+        "y": 279.9999995912824,
+        "wires": [
+            [
+                "6bb30a07.893924"
+            ]
+        ]
+    },
+    {
+        "id": "ed134b87.a1f088",
+        "type": "template",
+        "z": "18fd2061.a658e",
+        "name": "sparql NS list ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?subject ?type\nWHERE { \n  GRAPH <http://purl.obolibrary.org/obo/merged/DOID> { \n    ?subject rdf:type ?type . \n    ?subject <http://www.geneontology.org/formats/oboInOwl%23id> ?id .\n    FILTER(REGEX(?id, \"DOID\")) .\n  } \n}\n\nLIMIT {{limit}} OFFSET {{offset}}",
+        "output": "str",
+        "x": 259.2858352661133,
+        "y": 568.142865725926,
+        "wires": [
+            [
+                "198211b7.f0ea6e"
+            ]
+        ]
+    },
+    {
+        "id": "198211b7.f0ea6e",
+        "type": "http request",
+        "z": "18fd2061.a658e",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 573.4286499023438,
+        "y": 568.1427999223981,
+        "wires": [
+            [
+                "64409449.f16c1c"
+            ]
+        ]
+    },
+    {
+        "id": "49cc9b94.cf6e34",
+        "type": "debug",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1208.1430130004883,
+        "y": 574,
+        "wires": []
+    },
+    {
+        "id": "64409449.f16c1c",
+        "type": "splitter",
+        "z": "18fd2061.a658e",
+        "name": "payload.results.bindings",
+        "property": "payload.results.bindings",
+        "x": 942.8571929931641,
+        "y": 565.7142835344587,
+        "wires": [
+            [
+                "49cc9b94.cf6e34",
+                "4d6b3d88.2dcb94"
+            ]
+        ]
+    },
+    {
+        "id": "b16f9d34.38482",
+        "type": "repeat",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "repetitions": "",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 674.2857666015625,
+        "y": 275.7142673219953,
+        "wires": [
+            [
+                "b45db00a.49673"
+            ]
+        ]
+    },
+    {
+        "id": "4ecc07ed.ad1398",
+        "type": "delay",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 785.714241027832,
+        "y": 388.5715051378522,
+        "wires": [
+            [
+                "b16f9d34.38482"
+            ]
+        ]
+    },
+    {
+        "id": "b45db00a.49673",
+        "type": "function",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "func": "msg.offset = msg.start + ((msg._loopController.loops - 1 ) * msg.limit);\n\nreturn msg; \n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 552.8571472167969,
+        "y": 370.0001054491315,
+        "wires": [
+            [
+                "4ecc07ed.ad1398",
+                "ed134b87.a1f088",
+                "b8b3e418.3ed4a8"
+            ]
+        ]
+    },
+    {
+        "id": "6bb30a07.893924",
+        "type": "function",
+        "z": "18fd2061.a658e",
+        "name": "parameters",
+        "func": "msg.es = \"localhost:9200\";\n\nmsg.size = 10765;\nmsg.namespace = \"DOID\";\nmsg.index = \"doid-id\";\nmsg.replace = \"http://purl.obolibrary.org/obo/DOID_\";\nmsg.start = 0;\nmsg.size = msg.size - msg.start;\n\nmsg.limit = 100;\nmsg.offset = 0;\nmsg.repetitions = msg.size / msg.limit;\n\nmsg.graph = \"http://purl.obolibrary.org/obo/merged/DOID\";\nmsg.type = \"doid-id\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 404.2857164655413,
+        "y": 277.1428571428571,
+        "wires": [
+            [
+                "b16f9d34.38482"
+            ]
+        ]
+    },
+    {
+        "id": "b8b3e418.3ed4a8",
+        "type": "debug",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "offset",
+        "x": 794.2856674194336,
+        "y": 454.28572327750067,
+        "wires": []
+    },
+    {
+        "id": "c24aa0ed.47d97",
+        "type": "comment",
+        "z": "18fd2061.a658e",
+        "name": "Ontobee",
+        "info": "http://sparql.hegroup.org/sparql/\n\nhttp://www.ontobee.org/\n\nhttp://ceur-ws.org/Vol-833/paper48.pdf",
+        "x": 264.2857164655413,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "87aa168a.f22928",
+        "type": "http request",
+        "z": "18fd2061.a658e",
+        "name": "PUT http://{{es}}/{{index}}/id/{{id}}",
+        "method": "PUT",
+        "ret": "obj",
+        "url": "http://{{es}}/{{index}}/id/{{id}}",
+        "tls": "",
+        "x": 826.8570175170898,
+        "y": 794.2857843126569,
+        "wires": [
+            [
+                "d230aa3a.165ed8"
+            ]
+        ]
+    },
+    {
+        "id": "653e0c50.692554",
+        "type": "debug",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1110.7141799926758,
+        "y": 702.8572097505842,
+        "wires": []
+    },
+    {
+        "id": "575eb106.4a2d7",
+        "type": "timestamp",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "x": 450.14271545410156,
+        "y": 695.0000901903425,
+        "wires": [
+            [
+                "650520e1.51ccc"
+            ]
+        ]
+    },
+    {
+        "id": "650520e1.51ccc",
+        "type": "function",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "func": "results = msg.payload;\n\nmsg.payload = {};\nmsg.payload.timestamp = msg.timestamp;\nmsg.payload.offset = msg.offset;\nmsg.payload.job = msg.job;\n\nmsg.id = results.subject.value.replace(msg.replace,\"\");\nmsg.payload.id = msg.id;\n\nmsg.payload.subject = results.subject.value;\nmsg.payload.type = results.type.value;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 626.9998626708984,
+        "y": 695.0000653948102,
+        "wires": [
+            [
+                "653e0c50.692554",
+                "87aa168a.f22928"
+            ]
+        ]
+    },
+    {
+        "id": "4d6b3d88.2dcb94",
+        "type": "delay",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "30",
+        "timeoutUnits": "seconds",
+        "rate": "20",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 254.99994659423828,
+        "y": 695.5714507784162,
+        "wires": [
+            [
+                "575eb106.4a2d7"
+            ]
+        ]
+    },
+    {
+        "id": "d230aa3a.165ed8",
+        "type": "debug",
+        "z": "18fd2061.a658e",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1106.7140731811523,
+        "y": 794.7143588747297,
+        "wires": []
+    }
+]
