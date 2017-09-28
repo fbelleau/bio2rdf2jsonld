@@ -1,0 +1,302 @@
+[
+    {
+        "id": "5cd67e1c.acf84",
+        "type": "tab",
+        "label": "bio2rdf-hgnc-id",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "5b3b1a2.2b91ae4",
+        "type": "inject",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 157.50000762939453,
+        "y": 208.75000762939453,
+        "wires": [
+            [
+                "19470fc7.c6a6f"
+            ]
+        ]
+    },
+    {
+        "id": "19470fc7.c6a6f",
+        "type": "function",
+        "z": "5cd67e1c.acf84",
+        "name": "parameters",
+        "func": "// error\n\nmsg.es = \"vps146209.vps.ovh.ca:8080\";\n\nmsg.index = \"hgnc-type\";\nmsg.type = \"loop\";\nmsg.namespace = \"hgnc\";\n\nmsg.repetitions = 202; \n//msg.repetitions = 5; \n    \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 295.3928565979004,
+        "y": 323.9642562866211,
+        "wires": [
+            [
+                "9352f109.6cc24",
+                "76de2260.3b469c"
+            ]
+        ]
+    },
+    {
+        "id": "9352f109.6cc24",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 466.9642562866211,
+        "y": 290.8214416503906,
+        "wires": []
+    },
+    {
+        "id": "1adf98cd.f54097",
+        "type": "http request",
+        "z": "5cd67e1c.acf84",
+        "name": "GET http://{{{es}}}/{{{index}}}/loop/{{{id}}}",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://{{{es}}}/{{{index}}}/loop/{{{id}}}",
+        "tls": "",
+        "x": 719.3928375244141,
+        "y": 509.25006675720215,
+        "wires": [
+            [
+                "92147313.1e868",
+                "76de2260.3b469c",
+                "961b661c.d1a138"
+            ]
+        ]
+    },
+    {
+        "id": "a6d39448.268af8",
+        "type": "delay",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 727.3927574157715,
+        "y": 364.5000886917114,
+        "wires": [
+            [
+                "960c5e48.5a17b"
+            ]
+        ]
+    },
+    {
+        "id": "76de2260.3b469c",
+        "type": "repeat",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "repetitions": "",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 495.64283752441406,
+        "y": 365.50006675720215,
+        "wires": [
+            [
+                "a6d39448.268af8",
+                "f9506401.8a2818"
+            ]
+        ]
+    },
+    {
+        "id": "960c5e48.5a17b",
+        "type": "function",
+        "z": "5cd67e1c.acf84",
+        "name": "msg.headers = null;",
+        "func": "msg.headers = null;\n\nmsg.id = msg._loopController.loops;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 293.3928680419922,
+        "y": 508.833384513855,
+        "wires": [
+            [
+                "1adf98cd.f54097"
+            ]
+        ]
+    },
+    {
+        "id": "92147313.1e868",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1107.249828338623,
+        "y": 510.50008487701416,
+        "wires": []
+    },
+    {
+        "id": "f9506401.8a2818",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "_loopController",
+        "x": 759.6785430908203,
+        "y": 266.9643430709839,
+        "wires": []
+    },
+    {
+        "id": "b2d4e91d.753ad8",
+        "type": "http request",
+        "z": "5cd67e1c.acf84",
+        "name": "http://bio2rdf.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://bio2rdf.org/sparql?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on",
+        "tls": "",
+        "x": 656.2977256774902,
+        "y": 652.7024087905884,
+        "wires": [
+            [
+                "4b5238b7.449568",
+                "aaabc145.aeeda"
+            ]
+        ]
+    },
+    {
+        "id": "961b661c.d1a138",
+        "type": "function",
+        "z": "5cd67e1c.acf84",
+        "name": "msg.offset and type",
+        "func": "///\n\nmsg.headers = null;\n\nmsg.offset = msg.payload._source.offset;\nmsg.type = msg.payload._source.type;\n////msg.type = \"Term\";\n\nreturn msg;   ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 233.42852783203125,
+        "y": 655.2857666015625,
+        "wires": [
+            [
+                "39b8bd98.54b722"
+            ]
+        ]
+    },
+    {
+        "id": "4b5238b7.449568",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 994.2499237060547,
+        "y": 672.4642333984375,
+        "wires": []
+    },
+    {
+        "id": "97b53048.2beba",
+        "type": "comment",
+        "z": "5cd67e1c.acf84",
+        "name": "SPARQL",
+        "info": "http://bio2rdf.org/sparql\n\nhttp://bio2rdf.org/sparql?default-graph-uri=&query=SELECT+%3Fs+%3Ft+%0D%0AWHERE+%7B%0D%0A%3Fs+a+%3Ft+.%0D%0AFILTER%28%3Ft+%3D+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3AAllelic-Variant%3E%29+.%0D%0A%7D+%0D%0ALIMIT+1000+OFFSET+0&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on\n\nSELECT ?s ?t \nWHERE {\n?s a ?t .\nFILTER(?t = <http://bio2rdf.org/omim_vocabulary:Allelic-Variant>) .\n} \nLIMIT 1000 OFFSET 0",
+        "x": 280.8214111328125,
+        "y": 103.89292526245117,
+        "wires": []
+    },
+    {
+        "id": "3195c048.497f7",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 986.4682083129883,
+        "y": 766.7501058578491,
+        "wires": []
+    },
+    {
+        "id": "81ca71b4.66adb",
+        "type": "function",
+        "z": "5cd67e1c.acf84",
+        "name": "msg.payload = bulk;",
+        "func": "msg.headers = null; \n\nvar outputMsgs = [];\nbulk = \"\";\n\nvar list = msg.payload.results.bindings;\n\nfor (var i = 0; i < list.length; ++i) {\n    v = list[i];\n    id = v.s.value.replace(\"http://bio2rdf.org/\",\"\");\n    outputMsgs.push(v);\n    bulk = bulk + \"{ \\\"index\\\": { \\\"_index\\\": \\\"hgnc-id\\\", \\\"_type\\\": \\\"id\\\", \\\"_id\\\": \\\"\"+id+\"\\\" }}\" + \"\\n\";\n    v.timestamp = msg.timestamp;\n    bulk = bulk + JSON.stringify(v) + \"\\n\";\n}  \n\nmsg.payload = bulk; \n\n//return [outputMsgs];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 715.8531303405762,
+        "y": 765.301833152771,
+        "wires": [
+            [
+                "3195c048.497f7",
+                "68c35fd2.06d84"
+            ]
+        ]
+    },
+    {
+        "id": "68c35fd2.06d84",
+        "type": "http request",
+        "z": "5cd67e1c.acf84",
+        "name": "POST http://{{es}}/_bulk",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{es}}/_bulk",
+        "tls": "",
+        "x": 636.4087066650391,
+        "y": 884.8573608398438,
+        "wires": [
+            [
+                "5f4a6aeb.18d0f4"
+            ]
+        ]
+    },
+    {
+        "id": "5f4a6aeb.18d0f4",
+        "type": "debug",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 1001.4086761474609,
+        "y": 886.8573608398438,
+        "wires": []
+    },
+    {
+        "id": "39b8bd98.54b722",
+        "type": "template",
+        "z": "5cd67e1c.acf84",
+        "name": "sparql",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?s ?t \nWHERE {\n?s a ?t .\nFILTER(?t = <{{{type}}}>) .\n} \nLIMIT 1000 OFFSET {{offset}}",
+        "output": "str",
+        "x": 435,
+        "y": 656,
+        "wires": [
+            [
+                "b2d4e91d.753ad8"
+            ]
+        ]
+    },
+    {
+        "id": "aaabc145.aeeda",
+        "type": "timestamp",
+        "z": "5cd67e1c.acf84",
+        "name": "",
+        "x": 443,
+        "y": 767,
+        "wires": [
+            [
+                "81ca71b4.66adb"
+            ]
+        ]
+    }
+]
