@@ -1,0 +1,285 @@
+[
+    {
+        "id": "79f0119b.6a3a",
+        "type": "tab",
+        "label": "bio2rdf-hgnc-type",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2d995643.394a4a",
+        "type": "http request",
+        "z": "79f0119b.6a3a",
+        "name": "http://bio2rdf.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://bio2rdf.org/sparql?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 975,
+        "y": 194.99999141693115,
+        "wires": [
+            [
+                "f2979db6.b0278",
+                "92735d0c.cd91f"
+            ]
+        ]
+    },
+    {
+        "id": "19fea2e.b59555d",
+        "type": "inject",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 343.99998474121094,
+        "y": 199.38096046447754,
+        "wires": [
+            [
+                "e7ddba5a.d17998"
+            ]
+        ]
+    },
+    {
+        "id": "a7e4ba54.718a98",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "loop",
+        "x": 856.6665840148926,
+        "y": 408.04761505126953,
+        "wires": []
+    },
+    {
+        "id": "c333e62f.a0eb98",
+        "type": "comment",
+        "z": "79f0119b.6a3a",
+        "name": "SPARQL",
+        "info": "http://bio2rdf.org/sparql\n\nhttp://bio2rdf.org/sparql?default-graph-uri=&query=SELECT+%3Ft+count%28*%29+%0D%0AWHERE+%7B%0D%0A++GRAPH+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_resource%3Abio2rdf.dataset.omim.R3%3E+%7B%0D%0A++%5B%5D+a+%3Ft+.%0D%0A++FILTER+regex%28str%28%3Ft%29%2C+%22omim%22%29+.%0D%0A%7D%7D%0D%0AORDER+BY+2%0D%0A&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on\n\nSELECT ?t count(*) \nWHERE {\n  GRAPH <http://bio2rdf.org/omim_resource:bio2rdf.dataset.omim.R3> {\n  [] a ?t .\n  FILTER regex(str(?t), \"omim\") .\n}}\nORDER BY 2\n\nSELECT ?t ?p count(*) \nWHERE {\n  GRAPH <http://bio2rdf.org/omim_resource:bio2rdf.dataset.omim.R3> {\n  ?s a ?t .\n  ?s ?p [] .\n  FILTER regex(str(?t), \"omim\") .\n}}\norder by 2, 1\n\n",
+        "x": 406.04759979248047,
+        "y": 69.5000057220459,
+        "wires": []
+    },
+    {
+        "id": "92735d0c.cd91f",
+        "type": "splitter",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "property": "payload.results.bindings",
+        "x": 429.6666603088379,
+        "y": 400.95238399505615,
+        "wires": [
+            [
+                "31182ab9.175406"
+            ]
+        ]
+    },
+    {
+        "id": "31182ab9.175406",
+        "type": "function",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "func": "msg.loop = {};\n\nmsg.loop.page = 1000;\nmsg.loop.offset = 0;\n\nmsg.loop.type = msg.payload.type.value;\nmsg.loop.count = (msg.payload.count.value/msg.loop.page).toFixed();\nmsg.loop.number = msg.payload.count.value;\n\nmsg.repetitions = msg.loop.count;\n//msg.repetitions = 5;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 668.4165840148926,
+        "y": 404.58332347869873,
+        "wires": [
+            [
+                "a7e4ba54.718a98",
+                "ed7c1618.cc9a78"
+            ]
+        ]
+    },
+    {
+        "id": "ed7c1618.cc9a78",
+        "type": "repeat",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 651.6665840148926,
+        "y": 499.04761505126953,
+        "wires": [
+            [
+                "de816db1.cbf45",
+                "3a122a86.6769a6"
+            ]
+        ]
+    },
+    {
+        "id": "de816db1.cbf45",
+        "type": "function",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "func": "msg.loop.offset = msg.loop.offset + msg.loop.page;\n\nreturn msg;  ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 650.3332557678223,
+        "y": 576.523847579956,
+        "wires": [
+            [
+                "ed7c1618.cc9a78"
+            ]
+        ]
+    },
+    {
+        "id": "fac6b7ea.f95af8",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "loop",
+        "x": 1140.7023658752441,
+        "y": 500.36909198760986,
+        "wires": []
+    },
+    {
+        "id": "f2979db6.b0278",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1262.0000915527344,
+        "y": 194.7222089767456,
+        "wires": []
+    },
+    {
+        "id": "3a122a86.6769a6",
+        "type": "delay",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "50",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 930.6665916442871,
+        "y": 500.04762268066406,
+        "wires": [
+            [
+                "fac6b7ea.f95af8",
+                "9cd550e2.a33eb"
+            ]
+        ]
+    },
+    {
+        "id": "2e6fc74a.f8ce78",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 635.2738075256348,
+        "y": 694.6548156738281,
+        "wires": []
+    },
+    {
+        "id": "9cd550e2.a33eb",
+        "type": "function",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.loop;\n\nmsg.id = flow.get('count')+1;\nflow.set('count', msg.id);\nmsg.payload.id = msg.id;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 390.8094482421875,
+        "y": 760.9046874046326,
+        "wires": [
+            [
+                "2e6fc74a.f8ce78",
+                "4ac4edcf.4462b4"
+            ]
+        ]
+    },
+    {
+        "id": "4ac4edcf.4462b4",
+        "type": "http request",
+        "z": "79f0119b.6a3a",
+        "name": "http://{{es}}/hgnc-type/loop/{{{id}}}",
+        "method": "PUT",
+        "ret": "txt",
+        "url": "http://{{es}}/hgnc-type/loop/{{{id}}}",
+        "tls": "",
+        "x": 653.0953102111816,
+        "y": 766.8691024780273,
+        "wires": [
+            [
+                "c2d8bdb4.50f9"
+            ]
+        ]
+    },
+    {
+        "id": "c2d8bdb4.50f9",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1195.3095207214355,
+        "y": 759.3332576751709,
+        "wires": []
+    },
+    {
+        "id": "e7ddba5a.d17998",
+        "type": "function",
+        "z": "79f0119b.6a3a",
+        "name": "parameters",
+        "func": "flow.set('count',0);\n\nmsg.es = \"vps146209.vps.ovh.ca:8080\";\nmsg.namespace = \"hgnc\";\nmsg.graph = \"<http://bio2rdf.org/hgnc_resource:bio2rdf.dataset.hgnc.R3>\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 515.5714263916016,
+        "y": 201.8571491241455,
+        "wires": [
+            [
+                "5ff985b6.83a4dc"
+            ]
+        ]
+    },
+    {
+        "id": "5ff985b6.83a4dc",
+        "type": "template",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?type count(*) as ?count \nWHERE {\n  GRAPH {{{graph}}} {\n  [] a ?type .\n  FILTER regex(str(?type), \"{{namespace}}\") .\n}}\nORDER BY 2",
+        "output": "str",
+        "x": 725.0000228881836,
+        "y": 196.66665840148926,
+        "wires": [
+            [
+                "2d995643.394a4a",
+                "6d96b943.e7fef8"
+            ]
+        ]
+    },
+    {
+        "id": "6d96b943.e7fef8",
+        "type": "debug",
+        "z": "79f0119b.6a3a",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 936.6666259765625,
+        "y": 106.66666412353516,
+        "wires": []
+    }
+]
