@@ -1,0 +1,619 @@
+[
+    {
+        "id": "eb278cb6.47f24",
+        "type": "subflow",
+        "name": "es-loop-id",
+        "info": "",
+        "in": [
+            {
+                "x": 492,
+                "y": 32,
+                "wires": [
+                    {
+                        "id": "e3a8832e.e7817"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1427.500020980835,
+                "y": 574.5000095367432,
+                "wires": [
+                    {
+                        "id": "4badd319.7a3b3c",
+                        "port": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "22894595.835a6a",
+        "type": "inject",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 276,
+        "y": 130,
+        "wires": [
+            [
+                "4c176a25.89cd24"
+            ]
+        ]
+    },
+    {
+        "id": "e3a8832e.e7817",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "parameters",
+        "func": "msg.es = msg.payload.es;\nmsg.index = msg.payload.index;\n\nmsg.size = 100;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 680,
+        "y": 132,
+        "wires": [
+            [
+                "e7dbbb16.b486a8"
+            ]
+        ]
+    },
+    {
+        "id": "977a294a.d17b58",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/{{index}}}/_search?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/{{{index}}}/_search?scroll=1m",
+        "tls": "",
+        "x": 749.1788139343262,
+        "y": 239.32150650024414,
+        "wires": [
+            [
+                "3c55468d.6e4bda",
+                "88620ed6.0f52f",
+                "9aebbb55.8d0e88"
+            ]
+        ]
+    },
+    {
+        "id": "3c55468d.6e4bda",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.scroll_id = payload._scroll_id",
+        "func": "msg.scroll_id = msg.payload._scroll_id;\nmsg.repetitions = Math.round(msg.payload.hits.total/msg.size);\n\nmsg.total = msg.payload.hits.total;\n\n//msg.repetitions = 10 ;\n\nmsg.headers = null;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 486.9288139343262,
+        "y": 379.07150650024414,
+        "wires": [
+            [
+                "fd96c669.f8b408"
+            ]
+        ]
+    },
+    {
+        "id": "f0ebfa68.e00758",
+        "type": "splitter",
+        "z": "eb278cb6.47f24",
+        "name": "payload.hits.hits",
+        "property": "payload.hits.hits",
+        "x": 1170.0002708435059,
+        "y": 402.00005531311035,
+        "wires": [
+            [
+                "5b0a8024.651c4"
+            ]
+        ]
+    },
+    {
+        "id": "409f1f21.85455",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "tls": "",
+        "x": 729.6788139343262,
+        "y": 667.8215065002441,
+        "wires": [
+            [
+                "4edd4642.1d8658",
+                "fd96c669.f8b408",
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "8a48ba9b.b6f248",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "12",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 761.9644584655762,
+        "y": 528.785810470581,
+        "wires": [
+            [
+                "69d84bf5.bb3b14"
+            ]
+        ]
+    },
+    {
+        "id": "fd96c669.f8b408",
+        "type": "repeat",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "repetitions": "1",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 459.26212310791016,
+        "y": 529.0715179443359,
+        "wires": [
+            [
+                "8a48ba9b.b6f248",
+                "9a9be461.0a8158"
+            ]
+        ]
+    },
+    {
+        "id": "69d84bf5.bb3b14",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload = msg.scroll_id;",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.scroll_id;\n\nmsg.loops = msg._loopController.loops;\nmsg.remaining = msg._loopController.remaining;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 404.6788139343262,
+        "y": 667.0715065002441,
+        "wires": [
+            [
+                "409f1f21.85455"
+            ]
+        ]
+    },
+    {
+        "id": "4edd4642.1d8658",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1070,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9a9be461.0a8158",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "_loopController",
+        "x": 780.6788330078125,
+        "y": 448.821533203125,
+        "wires": []
+    },
+    {
+        "id": "5b0a8024.651c4",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "11",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 1423.107421875,
+        "y": 402.6786193847656,
+        "wires": [
+            [
+                "4badd319.7a3b3c"
+            ]
+        ]
+    },
+    {
+        "id": "4badd319.7a3b3c",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload",
+        "func": "\nmsg.payload = {\n    \"id\": msg.payload._id,     \n    \"loops\": msg.loops,    \n    \"remaining\": msg.remaining,\n    \"index\": msg.index,\n    \"total\": msg.total\n};\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1181.25,
+        "y": 492.25,
+        "wires": [
+            [
+                "feb9581a.c52238"
+            ]
+        ]
+    },
+    {
+        "id": "feb9581a.c52238",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1430,
+        "y": 492,
+        "wires": []
+    },
+    {
+        "id": "88620ed6.0f52f",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1124,
+        "y": 242,
+        "wires": []
+    },
+    {
+        "id": "e7dbbb16.b486a8",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es query",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{ \n  \"query\":{\"match_all\": {} },\n  \"sort\": [\"_doc\"],\n  \"size\" : 100,\n  \"fields\" : []\n}",
+        "output": "str",
+        "x": 440,
+        "y": 248,
+        "wires": [
+            [
+                "977a294a.d17b58"
+            ]
+        ]
+    },
+    {
+        "id": "4c176a25.89cd24",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es, index",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"es:8080\",\n    \"index\":\"chebi-json\"\n}",
+        "output": "json",
+        "x": 460.5,
+        "y": 133,
+        "wires": [
+            [
+                "e3a8832e.e7817"
+            ]
+        ]
+    },
+    {
+        "id": "9aebbb55.8d0e88",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.total",
+        "func": "msg.total = msg.payload.hits.total;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1006.5,
+        "y": 325,
+        "wires": [
+            [
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "88a55358.fe548",
+        "type": "tab",
+        "label": "disgenet-select",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c781ff65.9d629",
+        "type": "template",
+        "z": "88a55358.fe548",
+        "name": "SELECT * FILTER cga",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT *\nWHERE { \n?gda rdf:type ?type .  \n?gda rdfs:label ?gda_label .  \n\n?gda sio:SIO_000216 ?score_1 .\n?score_1 sio:SIO_000300 ?score .\n\n?gda sio:SIO_000628 ?disease .\n?disease rdf:type ncit:C7057 .  \nfilter regex(?disease, \"umls/id\") . \n?disease rdfs:label ?disease_label .  \n\n?gda sio:SIO_000628 ?gene .  \n?gene rdf:type ncit:C16612 .  \nfilter regex(?gene, \"ncbigene\") . \n?gene rdfs:label ?gene_label .  \n\nFILTER(?gda = <http://rdf.disgenet.org/resource/gda/{{id}}>) .\n}",
+        "output": "str",
+        "x": 413.21439361572266,
+        "y": 809.6427812576294,
+        "wires": [
+            [
+                "c9f87f59.a1015"
+            ]
+        ]
+    },
+    {
+        "id": "c9f87f59.a1015",
+        "type": "http request",
+        "z": "88a55358.fe548",
+        "name": "http://rdf.disgenet.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 716.6428527832031,
+        "y": 814.7856369018555,
+        "wires": [
+            [
+                "6317c7e.ae74938",
+                "93b8d31c.ab6c3"
+            ]
+        ]
+    },
+    {
+        "id": "6317c7e.ae74938",
+        "type": "debug",
+        "z": "88a55358.fe548",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload.results.bindings[0]",
+        "x": 1077.071517944336,
+        "y": 813.5000038146973,
+        "wires": []
+    },
+    {
+        "id": "ba5f63f1.09f11",
+        "type": "http request",
+        "z": "88a55358.fe548",
+        "name": "http://{{es}}/disgenet/resource/{{nsid}}",
+        "method": "PUT",
+        "ret": "txt",
+        "url": "http://{{es}}/disgenet/resource/{{nsid}}",
+        "tls": "",
+        "x": 790.7145843505859,
+        "y": 927.4999294281006,
+        "wires": [
+            [
+                "f1403d8d.4b685",
+                "3d64a907.43b476"
+            ]
+        ]
+    },
+    {
+        "id": "f1403d8d.4b685",
+        "type": "debug",
+        "z": "88a55358.fe548",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1080.785743713379,
+        "y": 927.4999799728394,
+        "wires": []
+    },
+    {
+        "id": "93b8d31c.ab6c3",
+        "type": "function",
+        "z": "88a55358.fe548",
+        "name": "cga 2 json-ld",
+        "func": "msg.headers = null;\n\njson = msg.payload.results.bindings[0];\n\nmsg.payload = {};\n\nmsg.payload[\"@context\"] = \"http://schema.org/\";\n\nmsg.payload[\"@id\"] = msg.nsid;\nmsg.payload[\"@type\"] = \"sio:SIO_001121\";\nmsg.payload[\"bm:identifier\"] = {};\nmsg.payload[\"bm:identifier\"] = msg.id;\n\nmsg.payload.umls = {};\nmsg.payload.umls[\"@id\"] = json.disease.value.replace(\"http://linkedlifedata.com/resource/umls/id/\",\"umls:\");\n\nmsg.payload.ncbigene = {};\nmsg.payload.ncbigene[\"@id\"] = json.gene.value.replace(\"http://identifiers.org/ncbigene/\",\"ncbigene:\");\n\nmsg.payload.umls[\"bm:identifier\"] = json.disease.value.replace(\"http://linkedlifedata.com/resource/umls/id/\",\"\");\nmsg.payload.ncbigene[\"bm:identifier\"] = json.gene.value.replace(\"http://identifiers.org/ncbigene/\",\"\");\n\nmsg.payload.umls[\"rdfs:label\"] = json.disease_label.value;\nmsg.payload.ncbigene[\"rdfs:label\"] = json.gene_label.value;\n\nmsg.payload[\"rdfs:label\"] = json.gda_label.value;\n\nmsg.payload.score = parseFloat(json.score.value);\n\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 420.35729217529297,
+        "y": 930.0000162124634,
+        "wires": [
+            [
+                "ba5f63f1.09f11",
+                "bd1d3894.2844c8"
+            ]
+        ]
+    },
+    {
+        "id": "396fdbc9.b74c94",
+        "type": "inject",
+        "z": "88a55358.fe548",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 177.857177734375,
+        "y": 694.2856721878052,
+        "wires": [
+            [
+                "1143cb86.c07fc4"
+            ]
+        ]
+    },
+    {
+        "id": "1143cb86.c07fc4",
+        "type": "function",
+        "z": "88a55358.fe548",
+        "name": "msg.id ",
+        "func": "msg.es = \"es:8080\";\n\nmsg.id = \"DGN046876c6bba7ddac177c885ebc7aabb3\";\nmsg.nsid = \"disgenet:\" + msg.id;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 166.78573989868164,
+        "y": 754.9999532699585,
+        "wires": [
+            [
+                "c781ff65.9d629"
+            ]
+        ]
+    },
+    {
+        "id": "f2aff976.7c21f8",
+        "type": "function",
+        "z": "88a55358.fe548",
+        "name": "msg.nsid",
+        "func": "msg.headers = {};\n\nmsg.id = msg.payload.id;\nmsg.nsid = \"disgenet:\" + msg.id;\n\nreturn msg;  ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 897.5000152587891,
+        "y": 575.7142944335938,
+        "wires": [
+            [
+                "856bcb57.555068",
+                "c781ff65.9d629"
+            ]
+        ]
+    },
+    {
+        "id": "856bcb57.555068",
+        "type": "debug",
+        "z": "88a55358.fe548",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 1166.071445465088,
+        "y": 572.8571681976318,
+        "wires": []
+    },
+    {
+        "id": "f5089349.5fd0e",
+        "type": "subflow:eb278cb6.47f24",
+        "z": "88a55358.fe548",
+        "name": "",
+        "x": 647.5,
+        "y": 580.714298248291,
+        "wires": [
+            [
+                "f2aff976.7c21f8"
+            ]
+        ]
+    },
+    {
+        "id": "294a548f.4e0c2c",
+        "type": "inject",
+        "z": "88a55358.fe548",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 215,
+        "y": 565.7142825126648,
+        "wires": [
+            [
+                "45ce5e20.8a483"
+            ]
+        ]
+    },
+    {
+        "id": "45ce5e20.8a483",
+        "type": "template",
+        "z": "88a55358.fe548",
+        "name": "cga-id",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"es:8080\",\n    \"index\":\"cga-id\"\n}",
+        "output": "json",
+        "x": 413.67856216430664,
+        "y": 553.4285655021667,
+        "wires": [
+            [
+                "f5089349.5fd0e"
+            ]
+        ]
+    },
+    {
+        "id": "bd1d3894.2844c8",
+        "type": "debug",
+        "z": "88a55358.fe548",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 587.1428985595703,
+        "y": 984.2856540679932,
+        "wires": []
+    },
+    {
+        "id": "36f09bbd.f58e04",
+        "type": "function",
+        "z": "88a55358.fe548",
+        "name": "msg.headers = null;",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.payload.replace(\"_index\",\"index\").replace(\"_type\",\"type\").replace(\"_id\",\"id\").replace(\"_version\",\"version\").replace(\"_shards\",\"shards\");\nmsg.payload = JSON.parse(msg.payload);\n\nmsg.payload.timestamp = msg.timestamp;\nmsg.payload.identifier = msg.id2;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 590,
+        "y": 1115.71435546875,
+        "wires": [
+            [
+                "8468ef4c.0f491"
+            ]
+        ]
+    },
+    {
+        "id": "8468ef4c.0f491",
+        "type": "http request",
+        "z": "88a55358.fe548",
+        "name": "http://{{es}}/log/disgenet",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{es}}/log/disgenet",
+        "tls": "",
+        "x": 877.9287109375,
+        "y": 1124.5001220703125,
+        "wires": [
+            [
+                "438d4618.86c8f8"
+            ]
+        ]
+    },
+    {
+        "id": "438d4618.86c8f8",
+        "type": "debug",
+        "z": "88a55358.fe548",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1133.2501983642578,
+        "y": 1133.7142734527588,
+        "wires": []
+    },
+    {
+        "id": "3d64a907.43b476",
+        "type": "timestamp",
+        "z": "88a55358.fe548",
+        "name": "",
+        "x": 364.107177734375,
+        "y": 1121.357177734375,
+        "wires": [
+            [
+                "36f09bbd.f58e04"
+            ]
+        ]
+    }
+]
