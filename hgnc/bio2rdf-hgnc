@@ -1,0 +1,631 @@
+[
+    {
+        "id": "eb278cb6.47f24",
+        "type": "subflow",
+        "name": "es-loop-id",
+        "info": "",
+        "in": [
+            {
+                "x": 492,
+                "y": 32,
+                "wires": [
+                    {
+                        "id": "e3a8832e.e7817"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1427.500020980835,
+                "y": 574.5000095367432,
+                "wires": [
+                    {
+                        "id": "4badd319.7a3b3c",
+                        "port": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "22894595.835a6a",
+        "type": "inject",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 276,
+        "y": 130,
+        "wires": [
+            [
+                "4c176a25.89cd24"
+            ]
+        ]
+    },
+    {
+        "id": "e3a8832e.e7817",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "parameters",
+        "func": "msg.es = msg.payload.es; \nmsg.index = msg.payload.index;\n\nmsg.size = 100;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 680,
+        "y": 132,
+        "wires": [
+            [
+                "e7dbbb16.b486a8"
+            ]
+        ]
+    },
+    {
+        "id": "977a294a.d17b58",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/{{index}}}/_search?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/{{{index}}}/_search?scroll=1m",
+        "tls": "",
+        "x": 749.1788139343262,
+        "y": 239.32150650024414,
+        "wires": [
+            [
+                "3c55468d.6e4bda",
+                "88620ed6.0f52f",
+                "9aebbb55.8d0e88"
+            ]
+        ]
+    },
+    {
+        "id": "3c55468d.6e4bda",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.scroll_id = payload._scroll_id",
+        "func": "msg.scroll_id = msg.payload._scroll_id;\nmsg.repetitions = Math.round(msg.payload.hits.total/msg.size);\n\nmsg.total = msg.payload.hits.total;\n\n//msg.repetitions = 10 ;\n\nmsg.headers = null;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 486.9288139343262,
+        "y": 379.07150650024414,
+        "wires": [
+            [
+                "fd96c669.f8b408"
+            ]
+        ]
+    },
+    {
+        "id": "f0ebfa68.e00758",
+        "type": "splitter",
+        "z": "eb278cb6.47f24",
+        "name": "payload.hits.hits",
+        "property": "payload.hits.hits",
+        "x": 1170.0002708435059,
+        "y": 402.00005531311035,
+        "wires": [
+            [
+                "5b0a8024.651c4"
+            ]
+        ]
+    },
+    {
+        "id": "409f1f21.85455",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "tls": "",
+        "x": 729.6788139343262,
+        "y": 667.8215065002441,
+        "wires": [
+            [
+                "4edd4642.1d8658",
+                "fd96c669.f8b408",
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "8a48ba9b.b6f248",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "12",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 761.9644584655762,
+        "y": 528.785810470581,
+        "wires": [
+            [
+                "69d84bf5.bb3b14"
+            ]
+        ]
+    },
+    {
+        "id": "fd96c669.f8b408",
+        "type": "repeat",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "repetitions": "1",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 459.26212310791016,
+        "y": 529.0715179443359,
+        "wires": [
+            [
+                "8a48ba9b.b6f248",
+                "9a9be461.0a8158"
+            ]
+        ]
+    },
+    {
+        "id": "69d84bf5.bb3b14",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload = msg.scroll_id;",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.scroll_id;\n\nmsg.loops = msg._loopController.loops;\nmsg.remaining = msg._loopController.remaining;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 404.6788139343262,
+        "y": 667.0715065002441,
+        "wires": [
+            [
+                "409f1f21.85455"
+            ]
+        ]
+    },
+    {
+        "id": "4edd4642.1d8658",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1070,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9a9be461.0a8158",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "_loopController",
+        "x": 780.6788330078125,
+        "y": 448.821533203125,
+        "wires": []
+    },
+    {
+        "id": "5b0a8024.651c4",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "11",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 1423.107421875,
+        "y": 402.6786193847656,
+        "wires": [
+            [
+                "4badd319.7a3b3c"
+            ]
+        ]
+    },
+    {
+        "id": "4badd319.7a3b3c",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload",
+        "func": "\nmsg.payload = {\n    \"id\": msg.payload._id,     \n    \"loops\": msg.loops,    \n    \"remaining\": msg.remaining,\n    \"index\": msg.index,\n    \"total\": msg.total\n};\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1181.25,
+        "y": 492.25,
+        "wires": [
+            [
+                "feb9581a.c52238"
+            ]
+        ]
+    },
+    {
+        "id": "feb9581a.c52238",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1430,
+        "y": 492,
+        "wires": []
+    },
+    {
+        "id": "88620ed6.0f52f",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1124,
+        "y": 242,
+        "wires": []
+    },
+    {
+        "id": "e7dbbb16.b486a8",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es query",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{ \n  \"query\":{\"match_all\": {} },\n  \"sort\": [\"_doc\"],\n  \"size\" : 100,\n  \"fields\" : []\n}",
+        "output": "str",
+        "x": 440,
+        "y": 248,
+        "wires": [
+            [
+                "977a294a.d17b58"
+            ]
+        ]
+    },
+    {
+        "id": "4c176a25.89cd24",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es, index",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"vps146209.vps.ovh.ca:8080\",\n    \"index\":\"chebi-json\"\n}",
+        "output": "json",
+        "x": 460.5,
+        "y": 133,
+        "wires": [
+            [
+                "e3a8832e.e7817"
+            ]
+        ]
+    },
+    {
+        "id": "9aebbb55.8d0e88",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.total",
+        "func": "msg.total = msg.payload.hits.total;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1006.5,
+        "y": 325,
+        "wires": [
+            [
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "284a6d07.638892",
+        "type": "tab",
+        "label": "bio2rdf-hgnc",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d9e8674a.0214a8",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "msg.es",
+        "func": "msg.headers = {};\n\nmsg.es = \"vps146209.vps.ovh.ca:8080\";\n \nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 536.3931083679199,
+        "y": 323.97620820999146,
+        "wires": [
+            [
+                "25135758.6cab38"
+            ]
+        ]
+    },
+    {
+        "id": "59cd657f.51197c",
+        "type": "debug",
+        "z": "284a6d07.638892",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1453.00004196167,
+        "y": 437.04766845703125,
+        "wires": []
+    },
+    {
+        "id": "744423d8.0ef98c",
+        "type": "http request",
+        "z": "284a6d07.638892",
+        "name": "http://{{{es}}}/hgnc/resource/{{{id}}}",
+        "method": "PUT",
+        "ret": "txt",
+        "url": "http://{{{es}}}/hgnc/resource/{{{id}}}",
+        "tls": "",
+        "x": 1067.0360527038574,
+        "y": 530.8691101074219,
+        "wires": [
+            [
+                "2a6ced97.b80992",
+                "98416ec1.3483d"
+            ]
+        ]
+    },
+    {
+        "id": "2a6ced97.b80992",
+        "type": "debug",
+        "z": "284a6d07.638892",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1401.1666831970215,
+        "y": 535.7143363952637,
+        "wires": []
+    },
+    {
+        "id": "85455d1a.17401",
+        "type": "inject",
+        "z": "284a6d07.638892",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 105.0000114440918,
+        "y": 334.5476379394531,
+        "wires": [
+            [
+                "4caa8e23.8bebf"
+            ]
+        ]
+    },
+    {
+        "id": "811e374c.93a958",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "msg.id",
+        "func": "msg.headers = {};\nmsg.id = msg.payload.id;\n\nreturn msg;   ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 823.0000228881836,
+        "y": 162.04766130447388,
+        "wires": [
+            [
+                "7586ca1f.51fc74",
+                "d9e8674a.0214a8"
+            ]
+        ]
+    },
+    {
+        "id": "a6f5b048.3c9d8",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "msg.headers = null;",
+        "func": "msg.headers = null;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 778.9645805358887,
+        "y": 531.1190795898438,
+        "wires": [
+            [
+                "744423d8.0ef98c"
+            ]
+        ]
+    },
+    {
+        "id": "7586ca1f.51fc74",
+        "type": "debug",
+        "z": "284a6d07.638892",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1241.00004196167,
+        "y": 158.04766845703125,
+        "wires": []
+    },
+    {
+        "id": "25135758.6cab38",
+        "type": "http request",
+        "z": "284a6d07.638892",
+        "name": "http://{{{es}}}/hgnc-json/resource/{{{id}}}/_source",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://{{{es}}}/hgnc-json/json/{{{id}}}/_source",
+        "tls": "",
+        "x": 835,
+        "y": 314.54765367507935,
+        "wires": [
+            [
+                "9091ed7.6f8831",
+                "c9dac422.636d48"
+            ]
+        ]
+    },
+    {
+        "id": "922801c9.b6ac5",
+        "type": "subflow:eb278cb6.47f24",
+        "z": "284a6d07.638892",
+        "x": 583.0000076293945,
+        "y": 167.04766511917114,
+        "wires": [
+            [
+                "811e374c.93a958"
+            ]
+        ]
+    },
+    {
+        "id": "c262ff2b.c9114",
+        "type": "inject",
+        "z": "284a6d07.638892",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 150.50000762939453,
+        "y": 152.04764938354492,
+        "wires": [
+            [
+                "dfd05aab.025178"
+            ]
+        ]
+    },
+    {
+        "id": "dfd05aab.025178",
+        "type": "template",
+        "z": "284a6d07.638892",
+        "name": "hgnc-json",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"vps146209.vps.ovh.ca:8080\",\n    \"index\":\"hgnc-json\"\n} ",
+        "output": "json",
+        "x": 359.1785697937012,
+        "y": 139.76193237304688,
+        "wires": [
+            [
+                "922801c9.b6ac5"
+            ]
+        ]
+    },
+    {
+        "id": "4caa8e23.8bebf",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "msg.id",
+        "func": "msg.id = \"hgnc:4922\";\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 292.3931083679199,
+        "y": 333.7619323730469,
+        "wires": [
+            [
+                "d9e8674a.0214a8"
+            ]
+        ]
+    },
+    {
+        "id": "9091ed7.6f8831",
+        "type": "debug",
+        "z": "284a6d07.638892",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1228.39310836792,
+        "y": 313.7619323730469,
+        "wires": []
+    },
+    {
+        "id": "c9dac422.636d48",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "rdf/json to json-ld",
+        "func": "var json_in = msg.payload;\nvar json_out = {};\nvar outputMsgs = [];\n\nfor (var prop in json_in) {\n    prop1 = prop;\n    if (prop == \"label\") {\n        prop1 = \"rdfs:label\";\n    }\n\n    if (typeof json_in[prop] === 'object') {\n        var olen = json_in[prop].length;\n        if (olen === 1 ) {\n                json_out[prop1] = [];\n            if (typeof json_in[prop][0]['@value'] === \"string\") {\n                json_out[prop1][0] = json_in[prop][0]['@value'];\n            } else if (typeof json_in[prop][0]['@id'] === \"string\") {\n                json_out[prop1][0] = json_in[prop][0]['@id'];\n            } else {\n                json_out[prop1][0] = json_in[prop][0];\n            }\n        } else {\n            json_out[prop1] = [];\n            for (var i = 0; i < olen; ++i) {\n                if (typeof json_in[prop][i]['@value'] === \"string\") {\n                    json_out[prop1][i] = json_in[prop][i]['@value'];\n                } else if (typeof json_in[prop][i]['@id'] === \"string\") {\n                    json_out[prop1][i] = json_in[prop][i]['@id'];\n                } else {\n                    json_out[prop1][i] = json_in[prop][i];\n                }\n            }\n        }\n   } else if (typeof json_in[prop] === 'string') {\n        json_out[prop1] = json_in[prop];\n    } else if (typeof json_in[prop] === 'number') {\n        json_out[prop1] = json_in[prop];\n    } else if (typeof json_in[prop] === 'boolean') {\n        json_out[prop1] = json_in[prop];\n    }\n}                \n\nmsg.payload = json_out;\n\nreturn msg; \n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 780.3931083679199,
+        "y": 417.7619323730469,
+        "wires": [
+            [
+                "a6f5b048.3c9d8",
+                "59cd657f.51197c"
+            ]
+        ]
+    },
+    {
+        "id": "38adbee7.9925f2",
+        "type": "function",
+        "z": "284a6d07.638892",
+        "name": "msg.headers = null;",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.payload.replace(\"_index\",\"index\").replace(\"_type\",\"type\").replace(\"_id\",\"id\").replace(\"_version\",\"version\").replace(\"_shards\",\"shards\");\nmsg.payload = JSON.parse(msg.payload);\n\nmsg.payload.timestamp = msg.timestamp;\nmsg.payload.identifier = msg.id2;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 580.0000114440918,
+        "y": 687.9762082099915,
+        "wires": [
+            [
+                "28838967.704ca6"
+            ]
+        ]
+    },
+    {
+        "id": "28838967.704ca6",
+        "type": "http request",
+        "z": "284a6d07.638892",
+        "name": "http://{{es}}/log/hgnc",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{es}}/log/hgnc",
+        "tls": "",
+        "x": 857.9287223815918,
+        "y": 696.761974811554,
+        "wires": [
+            [
+                "3891b684.82b70a"
+            ]
+        ]
+    },
+    {
+        "id": "3891b684.82b70a",
+        "type": "debug",
+        "z": "284a6d07.638892",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1376.1073112487793,
+        "y": 694.5475583076477,
+        "wires": []
+    },
+    {
+        "id": "98416ec1.3483d",
+        "type": "timestamp",
+        "z": "284a6d07.638892",
+        "name": "",
+        "x": 354.1071891784668,
+        "y": 693.6190304756165,
+        "wires": [
+            [
+                "38adbee7.9925f2"
+            ]
+        ]
+    }
+]
