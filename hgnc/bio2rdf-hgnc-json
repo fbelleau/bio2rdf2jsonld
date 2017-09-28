@@ -1,0 +1,624 @@
+[
+    {
+        "id": "eb278cb6.47f24",
+        "type": "subflow",
+        "name": "es-loop-id",
+        "info": "",
+        "in": [
+            {
+                "x": 492,
+                "y": 32,
+                "wires": [
+                    {
+                        "id": "e3a8832e.e7817"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1427.500020980835,
+                "y": 574.5000095367432,
+                "wires": [
+                    {
+                        "id": "4badd319.7a3b3c",
+                        "port": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "22894595.835a6a",
+        "type": "inject",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 276,
+        "y": 130,
+        "wires": [
+            [
+                "4c176a25.89cd24"
+            ]
+        ]
+    },
+    {
+        "id": "e3a8832e.e7817",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "parameters",
+        "func": "msg.es = msg.payload.es; \nmsg.index = msg.payload.index;\n\nmsg.size = 100;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 680,
+        "y": 132,
+        "wires": [
+            [
+                "e7dbbb16.b486a8"
+            ]
+        ]
+    },
+    {
+        "id": "977a294a.d17b58",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/{{index}}}/_search?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/{{{index}}}/_search?scroll=1m",
+        "tls": "",
+        "x": 749.1788139343262,
+        "y": 239.32150650024414,
+        "wires": [
+            [
+                "3c55468d.6e4bda",
+                "88620ed6.0f52f",
+                "9aebbb55.8d0e88"
+            ]
+        ]
+    },
+    {
+        "id": "3c55468d.6e4bda",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.scroll_id = payload._scroll_id",
+        "func": "msg.scroll_id = msg.payload._scroll_id;\nmsg.repetitions = Math.round(msg.payload.hits.total/msg.size);\n\nmsg.total = msg.payload.hits.total;\n\n//msg.repetitions = 10 ;\n\nmsg.headers = null;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 486.9288139343262,
+        "y": 379.07150650024414,
+        "wires": [
+            [
+                "fd96c669.f8b408"
+            ]
+        ]
+    },
+    {
+        "id": "f0ebfa68.e00758",
+        "type": "splitter",
+        "z": "eb278cb6.47f24",
+        "name": "payload.hits.hits",
+        "property": "payload.hits.hits",
+        "x": 1170.0002708435059,
+        "y": 402.00005531311035,
+        "wires": [
+            [
+                "5b0a8024.651c4"
+            ]
+        ]
+    },
+    {
+        "id": "409f1f21.85455",
+        "type": "http request",
+        "z": "eb278cb6.47f24",
+        "name": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://{{{es}}}/_search/scroll?scroll=1m",
+        "tls": "",
+        "x": 729.6788139343262,
+        "y": 667.8215065002441,
+        "wires": [
+            [
+                "4edd4642.1d8658",
+                "fd96c669.f8b408",
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "8a48ba9b.b6f248",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "12",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 761.9644584655762,
+        "y": 528.785810470581,
+        "wires": [
+            [
+                "69d84bf5.bb3b14"
+            ]
+        ]
+    },
+    {
+        "id": "fd96c669.f8b408",
+        "type": "repeat",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "repetitions": "1",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 459.26212310791016,
+        "y": 529.0715179443359,
+        "wires": [
+            [
+                "8a48ba9b.b6f248",
+                "9a9be461.0a8158"
+            ]
+        ]
+    },
+    {
+        "id": "69d84bf5.bb3b14",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload = msg.scroll_id;",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.scroll_id;\n\nmsg.loops = msg._loopController.loops;\nmsg.remaining = msg._loopController.remaining;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 404.6788139343262,
+        "y": 667.0715065002441,
+        "wires": [
+            [
+                "409f1f21.85455"
+            ]
+        ]
+    },
+    {
+        "id": "4edd4642.1d8658",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1070,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9a9be461.0a8158",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "_loopController",
+        "x": 780.6788330078125,
+        "y": 448.821533203125,
+        "wires": []
+    },
+    {
+        "id": "5b0a8024.651c4",
+        "type": "delay",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "11",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 1423.107421875,
+        "y": 402.6786193847656,
+        "wires": [
+            [
+                "4badd319.7a3b3c"
+            ]
+        ]
+    },
+    {
+        "id": "4badd319.7a3b3c",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.payload",
+        "func": "\nmsg.payload = {\n    \"id\": msg.payload._id,     \n    \"loops\": msg.loops,    \n    \"remaining\": msg.remaining,\n    \"index\": msg.index,\n    \"total\": msg.total\n};\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1181.25,
+        "y": 492.25,
+        "wires": [
+            [
+                "feb9581a.c52238"
+            ]
+        ]
+    },
+    {
+        "id": "feb9581a.c52238",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1430,
+        "y": 492,
+        "wires": []
+    },
+    {
+        "id": "88620ed6.0f52f",
+        "type": "debug",
+        "z": "eb278cb6.47f24",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1124,
+        "y": 242,
+        "wires": []
+    },
+    {
+        "id": "e7dbbb16.b486a8",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es query",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{ \n  \"query\":{\"match_all\": {} },\n  \"sort\": [\"_doc\"],\n  \"size\" : 100,\n  \"fields\" : []\n}",
+        "output": "str",
+        "x": 440,
+        "y": 248,
+        "wires": [
+            [
+                "977a294a.d17b58"
+            ]
+        ]
+    },
+    {
+        "id": "4c176a25.89cd24",
+        "type": "template",
+        "z": "eb278cb6.47f24",
+        "name": "es, index",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"vps146209.vps.ovh.ca:8080\",\n    \"index\":\"chebi-json\"\n}",
+        "output": "json",
+        "x": 460.5,
+        "y": 133,
+        "wires": [
+            [
+                "e3a8832e.e7817"
+            ]
+        ]
+    },
+    {
+        "id": "9aebbb55.8d0e88",
+        "type": "function",
+        "z": "eb278cb6.47f24",
+        "name": "msg.total",
+        "func": "msg.total = msg.payload.hits.total;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1006.5,
+        "y": 325,
+        "wires": [
+            [
+                "f0ebfa68.e00758"
+            ]
+        ]
+    },
+    {
+        "id": "3e8b5c38.cc2d54",
+        "type": "tab",
+        "label": "bio2rdf-hgnc-json",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "5db94019.e4433",
+        "type": "http request",
+        "z": "3e8b5c38.cc2d54",
+        "name": "http://bio2rdf.org/sparql?query=DESCRIBE <http://bio2rdf.org/{{{nsid}}}>&output=application/ld+json",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://bio2rdf.org/sparql?query=DESCRIBE <http://bio2rdf.org/{{{nsid}}}>&output=application/ld+json",
+        "tls": "",
+        "x": 478.2856979370117,
+        "y": 325.14283084869385,
+        "wires": [
+            [
+                "a1f1033b.82af9",
+                "21d4f0cb.3ed14"
+            ]
+        ]
+    },
+    {
+        "id": "c09a9939.380938",
+        "type": "function",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "func": "msg.headers = null;\n\nmsg.payload = msg.payload.replace(/_index/g,\"index\").replace(/_type/g,\"type\").replace(/_id/g,\"id\").replace(/_version/g,\"version\").replace(/_shards/g,\"shards\");\nmsg.payload = JSON.parse(msg.payload);\n\nmsg.payload.timestamp = msg.timestamp;\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 772,
+        "y": 654,
+        "wires": [
+            [
+                "9e36c46f.09b3c8"
+            ]
+        ]
+    },
+    {
+        "id": "9e36c46f.09b3c8",
+        "type": "http request",
+        "z": "3e8b5c38.cc2d54",
+        "name": "http://{{es}}/log/hgnc-json/{{nsid}}",
+        "method": "PUT",
+        "ret": "obj",
+        "url": "http://{{es}}/log/hgnc-json/{{nsid}}",
+        "tls": "",
+        "x": 1042,
+        "y": 654,
+        "wires": [
+            [
+                "8d219aa0.62d888"
+            ]
+        ]
+    },
+    {
+        "id": "8d219aa0.62d888",
+        "type": "debug",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1332,
+        "y": 654,
+        "wires": []
+    },
+    {
+        "id": "7b582927.7e30e8",
+        "type": "timestamp",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "x": 544.853157043457,
+        "y": 653.2856874465942,
+        "wires": [
+            [
+                "c09a9939.380938"
+            ]
+        ]
+    },
+    {
+        "id": "fcd5cbe7.dad1b8",
+        "type": "http request",
+        "z": "3e8b5c38.cc2d54",
+        "name": "http://{{es}}/hgnc-json/json/{{{nsid}}}",
+        "method": "PUT",
+        "ret": "txt",
+        "url": "http://{{es}}/hgnc-json/json/{{{nsid}}}",
+        "tls": "",
+        "x": 1054,
+        "y": 544,
+        "wires": [
+            [
+                "7b582927.7e30e8",
+                "e0949843.15ad18"
+            ]
+        ]
+    },
+    {
+        "id": "21d4f0cb.3ed14",
+        "type": "function",
+        "z": "3e8b5c38.cc2d54",
+        "name": "msg.payload[\"@graph\"][0];",
+        "func": "msg.headers = null;\nmsg.es = \"vps146209.vps.ovh.ca:8080\";\n\nmsg.payload = msg.payload[\"@graph\"][0];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 228,
+        "y": 442,
+        "wires": [
+            [
+                "7da0e964.0f9768"
+            ]
+        ]
+    },
+    {
+        "id": "f4f0065f.94d738",
+        "type": "debug",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 1338,
+        "y": 442,
+        "wires": []
+    },
+    {
+        "id": "b830b89f.78c558",
+        "type": "json",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "x": 797.8532066345215,
+        "y": 440.432559967041,
+        "wires": [
+            [
+                "5d223a9c.b09d04"
+            ]
+        ]
+    },
+    {
+        "id": "7da0e964.0f9768",
+        "type": "json",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "pretty": false,
+        "x": 468.6865119934082,
+        "y": 445.79370498657227,
+        "wires": [
+            [
+                "ffef538a.f4f34"
+            ]
+        ]
+    },
+    {
+        "id": "ffef538a.f4f34",
+        "type": "function",
+        "z": "3e8b5c38.cc2d54",
+        "name": "replaces",
+        "func": "msg.payload = msg.payload.replace(/http:\\/\\/www.w3.org\\/1999\\/02\\/22-rdf-syntax-ns#/g,\"rdf:\" );\nmsg.payload = msg.payload.replace(/http:\\/\\/www.w3.org\\/2000\\/01\\/rdf-schema#/g,\"rdfs:\" );\nmsg.payload = msg.payload.replace(/http:\\/\\/www.w3.org\\/2002\\/07\\/owl#/g,\"owl:\" );\nmsg.payload = msg.payload.replace(/http:\\/\\/purl.org\\/dc\\/terms\\//g,\"terms:\" );\nmsg.payload = msg.payload.replace(/http:\\/\\/rdfs.org\\/ns\\/void#/g,\"void:\" );\nmsg.payload = msg.payload.replace(/http:\\/\\/www.w3.org\\/2001\\/XMLSchema#/g,\"xml:\" );\n\nmsg.payload = msg.payload.replace(/http:\\/\\/identifiers.org\\//g,\"identifiers:\" );\n\nmsg.payload = msg.payload.replace(/http:\\/\\/bio2rdf.org\\//g,\"\" );\n\nmsg.payload = msg.payload.replace(/x-identifiers\\.org/g,\"x-identifiers\" );\n\nreturn msg;   ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 644.7976608276367,
+        "y": 440.98813247680664,
+        "wires": [
+            [
+                "b830b89f.78c558"
+            ]
+        ]
+    },
+    {
+        "id": "a1f1033b.82af9",
+        "type": "debug",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1034,
+        "y": 325.1428527832031,
+        "wires": []
+    },
+    {
+        "id": "e0949843.15ad18",
+        "type": "debug",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1366,
+        "y": 544,
+        "wires": []
+    },
+    {
+        "id": "18673d63.31a083",
+        "type": "function",
+        "z": "3e8b5c38.cc2d54",
+        "name": "msg.nsid",
+        "func": "msg.headers = {};\n\nmsg.nsid = msg.payload.id;\n\n//msg.nsid = msg.id.replace(\"http://bio2rdf.org/\",\"\");\n\nreturn msg;  ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 900,
+        "y": 200,
+        "wires": [
+            [
+                "5158f66c.27f248",
+                "5db94019.e4433"
+            ]
+        ]
+    },
+    {
+        "id": "5158f66c.27f248",
+        "type": "debug",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "nsid",
+        "x": 1180,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "a7d70ade.9f77c8",
+        "type": "subflow:eb278cb6.47f24",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "x": 649.9999847412109,
+        "y": 205.00000381469727,
+        "wires": [
+            [
+                "18673d63.31a083"
+            ]
+        ]
+    },
+    {
+        "id": "ad616aaf.99af18",
+        "type": "inject",
+        "z": "3e8b5c38.cc2d54",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 217.49998474121094,
+        "y": 189.99998807907104,
+        "wires": [
+            [
+                "6db2e027.c7bfc"
+            ]
+        ]
+    },
+    {
+        "id": "6db2e027.c7bfc",
+        "type": "template",
+        "z": "3e8b5c38.cc2d54",
+        "name": "hgnc-id",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"es\" : \"vps146209.vps.ovh.ca:8080\",\n    \"index\":\"hgnc-id\"\n}",
+        "output": "json",
+        "x": 426.1785469055176,
+        "y": 177.714271068573,
+        "wires": [
+            [
+                "a7d70ade.9f77c8"
+            ]
+        ]
+    },
+    {
+        "id": "5d223a9c.b09d04",
+        "type": "function",
+        "z": "3e8b5c38.cc2d54",
+        "name": "\"@context\" :\"http://schema.org\";",
+        "func": "msg.payload[\"@context\"] = \"http://schema.org\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1058,
+        "y": 442,
+        "wires": [
+            [
+                "f4f0065f.94d738",
+                "fcd5cbe7.dad1b8"
+            ]
+        ]
+    }
+]
