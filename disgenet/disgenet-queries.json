@@ -1,0 +1,320 @@
+[
+    {
+        "id": "5eb8c356.d90b4c",
+        "type": "tab",
+        "label": "DisGeNet queries",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "99ea15e6.edcde8",
+        "type": "inject",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 162.85712432861328,
+        "y": 158.99999976158142,
+        "wires": [
+            [
+                "b819c206.b7113"
+            ]
+        ]
+    },
+    {
+        "id": "b819c206.b7113",
+        "type": "template",
+        "z": "5eb8c356.d90b4c",
+        "name": "SELECT ?type ?predicate count(*) as ?count",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?type ?predicate count(*) as ?count\nWHERE {\n?subject rdf:type ?type .\n?subject ?predicate ?object .\nFILTER( ?type = <http://semanticscience.org/resource/SIO_001121>) .\n}\nORDER BY DESC(count(*)) ",
+        "output": "str",
+        "x": 477.8571243286133,
+        "y": 159.99999976158142,
+        "wires": [
+            [
+                "1a99afeb.c11fd"
+            ]
+        ]
+    },
+    {
+        "id": "1a99afeb.c11fd",
+        "type": "http request",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 867.7143020629883,
+        "y": 181.4285659790039,
+        "wires": [
+            [
+                "6350554.367eaac"
+            ]
+        ]
+    },
+    {
+        "id": "6350554.367eaac",
+        "type": "debug",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1106.7143020629883,
+        "y": 184.4285659790039,
+        "wires": []
+    },
+    {
+        "id": "f800e4d6.4bd838",
+        "type": "inject",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 165.57142639160156,
+        "y": 382.28571128845215,
+        "wires": [
+            [
+                "90f05b91.64a858"
+            ]
+        ]
+    },
+    {
+        "id": "90f05b91.64a858",
+        "type": "template",
+        "z": "5eb8c356.d90b4c",
+        "name": "SELECT DISTINCT ?subject",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT DISTINCT ?subject\nWHERE {\n?subject rdf:type ?type .\nFILTER( ?type = <http://semanticscience.org/resource/SIO_001121>) .\n}\nORDER BY ?type\nLIMIT 1000 OFFSET 1000000",
+        "output": "str",
+        "x": 430.57142639160156,
+        "y": 383.28571128845215,
+        "wires": [
+            [
+                "98b51ff2.f3884"
+            ]
+        ]
+    },
+    {
+        "id": "98b51ff2.f3884",
+        "type": "http request",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 716.1428833007812,
+        "y": 383.285701751709,
+        "wires": [
+            [
+                "b0933d9a.c8d1d"
+            ]
+        ]
+    },
+    {
+        "id": "b0933d9a.c8d1d",
+        "type": "debug",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 955.1428833007812,
+        "y": 386.285701751709,
+        "wires": []
+    },
+    {
+        "id": "ec7504b5.415dc8",
+        "type": "inject",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 166,
+        "y": 284,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e545870e.c936f8",
+        "type": "inject",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 166,
+        "y": 284,
+        "wires": [
+            [
+                "cafa8c0e.9914b"
+            ]
+        ]
+    },
+    {
+        "id": "cafa8c0e.9914b",
+        "type": "template",
+        "z": "5eb8c356.d90b4c",
+        "name": "SELECT ?type count(distinct(?subject)) as ?count",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?type count(distinct(?subject)) as ?count\nWHERE {\n?subject rdf:type ?type .\n}\nORDER BY DESC(count(distinct(?subject))) ",
+        "output": "str",
+        "x": 501,
+        "y": 285,
+        "wires": [
+            [
+                "9e3bb87e.0895c8"
+            ]
+        ]
+    },
+    {
+        "id": "9e3bb87e.0895c8",
+        "type": "http request",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 864,
+        "y": 289,
+        "wires": [
+            [
+                "3ab2572d.7e0418"
+            ]
+        ]
+    },
+    {
+        "id": "3ab2572d.7e0418",
+        "type": "debug",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1129,
+        "y": 292,
+        "wires": []
+    },
+    {
+        "id": "cbb01705.c11fe8",
+        "type": "inject",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 158,
+        "y": 474.285719871521,
+        "wires": [
+            [
+                "149f03f1.ff053c"
+            ]
+        ]
+    },
+    {
+        "id": "149f03f1.ff053c",
+        "type": "template",
+        "z": "5eb8c356.d90b4c",
+        "name": "SELECT count(distinct(?gda)) as ?count",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT count(distinct(?subject)) as ?count\nWHERE { \n?subject rdf:type <http://semanticscience.org/resource/SIO_001121> .\n} ",
+        "output": "str",
+        "x": 463,
+        "y": 475.285719871521,
+        "wires": [
+            [
+                "c17d7aeb.fa8b68"
+            ]
+        ]
+    },
+    {
+        "id": "c17d7aeb.fa8b68",
+        "type": "http request",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 784,
+        "y": 475.285719871521,
+        "wires": [
+            [
+                "bbef67c.cb49e98"
+            ]
+        ]
+    },
+    {
+        "id": "1a83971b.fa7b39",
+        "type": "debug",
+        "z": "5eb8c356.d90b4c",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1114.714340209961,
+        "y": 553.4286079406738,
+        "wires": []
+    },
+    {
+        "id": "bbef67c.cb49e98",
+        "type": "function",
+        "z": "5eb8c356.d90b4c",
+        "name": " msg.payload.results.bindings[0].count.value;",
+        "func": "msg.payload = msg.payload.results.bindings[0].count.value;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 837.7143402099609,
+        "y": 553.4286079406738,
+        "wires": [
+            [
+                "1a83971b.fa7b39"
+            ]
+        ]
+    },
+    {
+        "id": "1bd2fedb.95cd91",
+        "type": "comment",
+        "z": "5eb8c356.d90b4c",
+        "name": "DisGeNet sparql endpoint",
+        "info": "http://rdf.disgenet.org/sparql/?default-graph-uri=&query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "x": 188.85712432861328,
+        "y": 80.28571128845215,
+        "wires": []
+    }
+]
