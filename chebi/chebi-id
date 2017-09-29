@@ -1,0 +1,363 @@
+[
+    {
+        "id": "37d728a5.48b9a8",
+        "type": "tab",
+        "label": "chebi-id",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "8b5c6da2.c256f",
+        "type": "http request",
+        "z": "37d728a5.48b9a8",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 494.85716247558594,
+        "y": 213.85713958740234,
+        "wires": [
+            [
+                "fe30fdea.26007"
+            ]
+        ]
+    },
+    {
+        "id": "1587ea91.379825",
+        "type": "debug",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1088.1428604125977,
+        "y": 203.99999046325684,
+        "wires": []
+    },
+    {
+        "id": "fe30fdea.26007",
+        "type": "function",
+        "z": "37d728a5.48b9a8",
+        "name": "msg.payload.results.bindings[0].count.value;",
+        "func": "msg.payload = msg.payload.results.bindings[0].count.value;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 818.5714111328125,
+        "y": 138.5714249610901,
+        "wires": [
+            [
+                "1587ea91.379825"
+            ]
+        ]
+    },
+    {
+        "id": "761f2b8d.541664",
+        "type": "inject",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 120,
+        "y": 292.8571424484253,
+        "wires": [
+            [
+                "f5b6db7a.584368"
+            ]
+        ]
+    },
+    {
+        "id": "5a5581ff.8811c",
+        "type": "template",
+        "z": "37d728a5.48b9a8",
+        "name": "sparql NS list ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT ?subject ?type\nWHERE { GRAPH <{{{graph}}}> { \n    ?subject rdf:type ?type .\n    FILTER(?type = owl:Class) .\n    } \n}\nLIMIT {{limit}} OFFSET {{offset}}",
+        "output": "str",
+        "x": 197.85726165771484,
+        "y": 581.0000085830688,
+        "wires": [
+            [
+                "a116e688.833618"
+            ]
+        ]
+    },
+    {
+        "id": "a116e688.833618",
+        "type": "http request",
+        "z": "37d728a5.48b9a8",
+        "name": "http://sparql.hegroup.org/sparql",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://sparql.hegroup.org/sparql/?query={{{payload}}}&format=application%2Fsparql-results%2Bjson",
+        "tls": "",
+        "x": 512.0000762939453,
+        "y": 580.999942779541,
+        "wires": [
+            [
+                "427f1a7.ff438e4"
+            ]
+        ]
+    },
+    {
+        "id": "7477a21f.13874c",
+        "type": "debug",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1118.1429748535156,
+        "y": 511.1428451538086,
+        "wires": []
+    },
+    {
+        "id": "427f1a7.ff438e4",
+        "type": "splitter",
+        "z": "37d728a5.48b9a8",
+        "name": "payload.results.bindings",
+        "property": "payload.results.bindings",
+        "x": 881.4286193847656,
+        "y": 578.5714263916016,
+        "wires": [
+            [
+                "7477a21f.13874c",
+                "87656267.6ffce"
+            ]
+        ]
+    },
+    {
+        "id": "e2a51c1.c04d7e",
+        "type": "repeat",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "repetitions": "",
+        "elseOutput": false,
+        "outputs": 1,
+        "x": 612.8571929931641,
+        "y": 288.5714101791382,
+        "wires": [
+            [
+                "35d3848f.115c9c"
+            ]
+        ]
+    },
+    {
+        "id": "17578b4.904c975",
+        "type": "delay",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 724.2856674194336,
+        "y": 401.4286479949951,
+        "wires": [
+            [
+                "e2a51c1.c04d7e"
+            ]
+        ]
+    },
+    {
+        "id": "35d3848f.115c9c",
+        "type": "function",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "func": "msg.offset = msg.start +((msg._loopController.loops - 1 ) * msg.limit);\n\nreturn msg; \n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 491.42857360839844,
+        "y": 382.8572483062744,
+        "wires": [
+            [
+                "17578b4.904c975",
+                "5a5581ff.8811c",
+                "f04a0e50.190ff"
+            ]
+        ]
+    },
+    {
+        "id": "f5b6db7a.584368",
+        "type": "function",
+        "z": "37d728a5.48b9a8",
+        "name": "parameters",
+        "func": "msg.es = \"\";\n\nmsg.size = 61115;\nmsg.namespace = \"GO\";\nmsg.index = \"go-id\";\n\nmsg.size = 126725;\nmsg.namespace = \"CHEBI\";\nmsg.index = \"chebi-id\"; \nmsg.start = 28000;\nmsg.size = msg.size - msg.start;\n\nmsg.limit = 100;\nmsg.offset = 0;\nmsg.repetitions = msg.size / msg.limit;\n\nmsg.graph = \"http://purl.obolibrary.org/obo/merged/CHEBI\";\nmsg.type = \"chebi-id\";\n\nmsg.es = \"localhost:9200\";\nmsg.es = \"vps146209.vps.ovh.ca:8080\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 342.85714285714283,
+        "y": 290,
+        "wires": [
+            [
+                "e2a51c1.c04d7e"
+            ]
+        ]
+    },
+    {
+        "id": "f04a0e50.190ff",
+        "type": "debug",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "offset",
+        "x": 732.8570938110352,
+        "y": 467.14286613464355,
+        "wires": []
+    },
+    {
+        "id": "e7a6afec.d87bf",
+        "type": "comment",
+        "z": "37d728a5.48b9a8",
+        "name": "Ontobee",
+        "info": "http://sparql.hegroup.org/sparql/\n\nhttp://www.ontobee.org/\n\nhttp://ceur-ws.org/Vol-833/paper48.pdf",
+        "x": 202.85714285714283,
+        "y": 32.857142857142854,
+        "wires": []
+    },
+    {
+        "id": "e85656b6.43c968",
+        "type": "inject",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 182.85714721679688,
+        "y": 85.71428680419922,
+        "wires": [
+            [
+                "a48880f.fdb748"
+            ]
+        ]
+    },
+    {
+        "id": "a48880f.fdb748",
+        "type": "template",
+        "z": "37d728a5.48b9a8",
+        "name": "SELECT count(distinct(?s)) CHEBI",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT count(distinct(?s)) as ?count\nWHERE { GRAPH <http://purl.obolibrary.org/obo/merged/CHEBI> \n  { ?s rdf:type owl:Class } \n}",
+        "output": "str",
+        "x": 467.8571472167969,
+        "y": 86.71428680419922,
+        "wires": [
+            [
+                "8b5c6da2.c256f"
+            ]
+        ]
+    },
+    {
+        "id": "d07ea0d.1abc06",
+        "type": "http request",
+        "z": "37d728a5.48b9a8",
+        "name": "PUT http://{{es}}/{{index}}/id/{{id}}",
+        "method": "PUT",
+        "ret": "obj",
+        "url": "http://{{es}}/{{index}}/id/{{id}}",
+        "tls": "",
+        "x": 765.4284439086914,
+        "y": 807.1429271697998,
+        "wires": [
+            [
+                "e607a13f.d084"
+            ]
+        ]
+    },
+    {
+        "id": "47f8c17c.ba864",
+        "type": "debug",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1049.2856063842773,
+        "y": 715.714352607727,
+        "wires": []
+    },
+    {
+        "id": "520eaef1.9471f",
+        "type": "timestamp",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "x": 388.7141418457031,
+        "y": 707.8572330474854,
+        "wires": [
+            [
+                "1e4dee8.7037012"
+            ]
+        ]
+    },
+    {
+        "id": "1e4dee8.7037012",
+        "type": "function",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "func": "results = msg.payload;\n\nmsg.payload = {};\nmsg.payload.timestamp = msg.timestamp;\nmsg.payload.offset = msg.offset;\nmsg.payload.job = msg.job;\n\nmsg.id = results.subject.value.replace(\"http://purl.obolibrary.org/obo/CHEBI_\",\"\");\nmsg.payload.id = msg.id;\n\nmsg.payload.subject = results.subject.value;\nmsg.payload.type = results.type.value;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 565.5712890625,
+        "y": 707.8572082519531,
+        "wires": [
+            [
+                "47f8c17c.ba864",
+                "d07ea0d.1abc06"
+            ]
+        ]
+    },
+    {
+        "id": "87656267.6ffce",
+        "type": "delay",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "30",
+        "timeoutUnits": "seconds",
+        "rate": "20",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 193.57137298583984,
+        "y": 708.4285936355591,
+        "wires": [
+            [
+                "520eaef1.9471f"
+            ]
+        ]
+    },
+    {
+        "id": "e607a13f.d084",
+        "type": "debug",
+        "z": "37d728a5.48b9a8",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 1045.285499572754,
+        "y": 807.5715017318726,
+        "wires": []
+    }
+]
